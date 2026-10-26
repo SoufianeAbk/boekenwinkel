@@ -395,3 +395,10 @@ Alle instellingen staan in `application.properties` en kunnen overschreven worde
 - **Alleen de gebruikers-service kent de reservaties en gebruikers**, alleen de catalogus de boeken. Titel en prijs worden gekopieerd (reservatielijn, gekocht boek) zodat het profiel en oude reservaties zonder de catalogus kunnen getoond worden.
 - **Beperkingen van deze versie:** geen paginering van de catalogus, geen scherm om een boek te wijzigen (de API ervoor bestaat wel), en een reservatie kan enkel door de klant zelf geannuleerd worden, niet door een beheerder, geen refresh-tokens of intrekken van tokens (een token blijft geldig tot hij verloopt), token en mandje staan in `localStorage`, en er zijn geen frontendtesten.
 - **Voor productie:** vervang H2 door een echte database, zet `spring.h2.console.enabled=false`, kies eigen waarden voor `app.jwt.secret`, de API-sleutel en de demo-wachtwoorden (of schakel de seed uit), en zet de frontend achter een reverse proxy met HTTPS.
+
+## Gebruik externe bronnen + AI:
+https://claude.ai/share/e1700352-8b3e-46dd-bc91-01904b791c55
+https://chatgpt.com/c/6adf59db-0234-83ed-9b82-2941f17f8214
+https://chatgpt.com/c/6adf5c2f-aeb8-83eb-bb70-8bcbb900e079
+https://maven.apache.org/guides/
+https://react.dev/learn
