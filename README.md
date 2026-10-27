@@ -15,6 +15,7 @@ Applicatie voor een fictieve boekenwinkel, opgebouwd uit kleine services die via
 - [Projectstructuur](#projectstructuur)
 - [Opstarten](#opstarten)
 - [Demo-accounts](#demo-accounts)
+- [Admin-endpoints aanroepen (Postman)](#admin-endpoints-aanroepen-postman)
 - [Testen](#testen)
 - [Configuratie](#configuratie)
 - [Probleemoplossing](#probleemoplossing)
@@ -327,6 +328,50 @@ De wachtwoorden staan in `gebruikers-service/src/main/resources/application.prop
 
 Je kan ook zelf een nieuw klantaccount registreren.
 
+## Admin-endpoints aanroepen (Postman)
+
+Niet alles wat een beheerder kan, zit in de frontend: een boek wijzigen kan bijvoorbeeld enkel via de API. De admin-endpoints zijn uitgeprobeerd met de desktop-app van Postman.
+
+### 1. Inloggen en het token gebruiken
+
+Alle admin-endpoints vragen een JWT met rol `ADMIN` (zie [Rollen en beveiliging](#rollen-en-beveiliging)). Zonder token krijg je een 401, met het token van een klant een 403.
+
+1. Maak een request `POST http://localhost:8082/api/auth/login` met Body → raw → JSON:
+
+   ```json
+   {"gebruikersnaam": "admin", "wachtwoord": "admin1234"}
+   ```
+
+2. Kopieer de waarde van `token` uit het antwoord.
+3. Kies in elk admin-request het tabblad **Authorization**, type **Bearer Token**, en plak het token. Hetzelfde token werkt voor beide services (ze delen hetzelfde geheim). Het is 8 uur geldig; krijg je een 401, log dan opnieuw in.
+
+Handiger: zet de requests in een collectie, plak dit in het tabblad **Scripts → Post-response** (in oudere versies **Tests**) van het login-request en stel op de collectie bij **Authorization** het type *Bearer Token* in met de waarde `{{token}}`. De andere requests erven die instelling, en het token wordt na elke login automatisch ververst. Zet het login-request zelf op *No Auth*: een ongeldig of verlopen token in de header wordt ook op `/api/auth/**` met een 401 geweigerd.
+
+```js
+pm.collectionVariables.set("token", pm.response.json().token);
+```
+
+### 2. De requests
+
+| Request | Methode | URL | Body (raw JSON) | Antwoord |
+|---|---|---|---|---|
+| Reservaties bekijken | GET | `http://localhost:8082/api/admin/reservaties?status=GERESERVEERD` | geen | 200 |
+| Reservatie bevestigen | POST | `http://localhost:8082/api/admin/reservaties/1/bevestigen` | `{"afhaalDatum":"2026-11-05"}` (optioneel) | 200 |
+| Boek toevoegen | POST | `http://localhost:8081/api/boeken` | `{"isbn":"9780140449136","titel":"Test","auteurs":["Iemand"],"omschrijving":"Een testboek","prijs":12.50,"stock":5}` | 201 |
+| Boek wijzigen | PUT | `http://localhost:8081/api/boeken/9780140449136` | `{"titel":"Nieuwe titel","auteurs":["Iemand"],"omschrijving":"Een testboek","prijs":14.00}` | 200 |
+| Levering registreren | POST | `http://localhost:8081/api/boeken/9780140449136/levering` | `{"aantal":10}` | 200 |
+
+Let op:
+
+- **Poorten.** Reservaties staan op 8082 (gebruikers-service), boeken op 8081 (catalogus-service). Beide services moeten draaien: een reservatie bevestigen roept de catalogus aan (anders 503).
+- **Body.** Bij requests met een body moet Body → raw → JSON gekozen zijn, zodat Postman `Content-Type: application/json` meestuurt. Een ander type (bv. Text) geeft een 415, ongeldige JSON een 400.
+- **Volgorde bij de boeken.** Boek wijzigen en levering registreren werken enkel op een bestaand ISBN. `9780140449136` zit niet in de startdata, dus voer eerst *Boek toevoegen* uit (of gebruik een bestaand ISBN, bv. `9780141036144`). Een tweede keer toevoegen geeft een 409. Boek wijzigen past enkel titel, auteurs, omschrijving en prijs aan; de stock verandert via leveringen.
+- **Reservatie bevestigen.** De `1` in de URL is het id van de reservatie. Die moet bestaan en de status `GERESERVEERD` hebben (anders 404 of 409). In een verse database zijn er nog geen reservaties; maak er eerst een als klant:
+  1. Log in als `klant` met wachtwoord `klant1234` (zelfde login-request, andere body) en gebruik dat token.
+  2. `POST http://localhost:8082/api/reservaties` met body `{"lijnen":[{"isbn":"9780141036144","aantal":1}]}`.
+  3. Het `id` uit het antwoord (of uit *Reservaties bekijken*, met het admin-token) is het id voor het bevestigen.
+- **Afhaaldatum.** Formaat `yyyy-MM-dd`, vandaag of later (een datum in het verleden geeft een 400). Zonder body of zonder datum wordt het morgen. Is de stock onvoldoende (409), dan blijft de reservatie openstaan.
+
 ## Testen
 
 ```bash
@@ -395,3 +440,10 @@ Alle instellingen staan in `application.properties` en kunnen overschreven worde
 - **Alleen de gebruikers-service kent de reservaties en gebruikers**, alleen de catalogus de boeken. Titel en prijs worden gekopieerd (reservatielijn, gekocht boek) zodat het profiel en oude reservaties zonder de catalogus kunnen getoond worden.
 - **Beperkingen van deze versie:** geen paginering van de catalogus, geen scherm om een boek te wijzigen (de API ervoor bestaat wel), en een reservatie kan enkel door de klant zelf geannuleerd worden, niet door een beheerder, geen refresh-tokens of intrekken van tokens (een token blijft geldig tot hij verloopt), token en mandje staan in `localStorage`, en er zijn geen frontendtesten.
 - **Voor productie:** vervang H2 door een echte database, zet `spring.h2.console.enabled=false`, kies eigen waarden voor `app.jwt.secret`, de API-sleutel en de demo-wachtwoorden (of schakel de seed uit), en zet de frontend achter een reverse proxy met HTTPS.
+
+## Gebruik externe bronnen + AI:
+https://claude.ai/share/e1700352-8b3e-46dd-bc91-01904b791c55
+https://chatgpt.com/c/6adf59db-0234-83ed-9b82-2941f17f8214
+https://chatgpt.com/c/6adf5c2f-aeb8-83eb-bb70-8bcbb900e079
+https://maven.apache.org/guides/
+https://react.dev/learn
