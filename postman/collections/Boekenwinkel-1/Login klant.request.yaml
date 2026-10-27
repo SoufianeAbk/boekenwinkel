@@ -1,0 +1,13 @@
+$kind: http-request
+url: http://localhost:8082/api/auth/login
+method: POST
+body:
+  type: json
+  content: '{"gebruikersnaam":"klant","wachtwoord":"klant1234"}'
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: 'pm.collectionVariables.set("klanttoken", pm.response.json().token);'
+    language: text/javascript
+order: 7000

@@ -1,0 +1,14 @@
+$kind: http-request
+description: ""
+url: http://localhost:8082/api/auth/login
+method: POST
+body:
+  type: json
+  content: '  {"gebruikersnaam": "admin", "wachtwoord": "admin1234"}'
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: '  pm.collectionVariables.set("token", pm.response.json().token);'
+    language: text/javascript
+order: 1000

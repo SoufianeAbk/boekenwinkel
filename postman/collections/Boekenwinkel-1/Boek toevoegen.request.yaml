@@ -1,0 +1,7 @@
+$kind: http-request
+url: http://localhost:8081/api/boeken
+method: POST
+body:
+  type: json
+  content: '   {"isbn":"9780140449136","titel":"Test","auteurs":["Iemand"],"omschrijving":"Een testboek","prijs":12.50,"stock":5}'
+order: 2000

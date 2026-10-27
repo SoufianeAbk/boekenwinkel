@@ -1,0 +1,7 @@
+$kind: http-request
+url: http://localhost:8081/api/boeken/9780140449136/levering
+method: POST
+body:
+  type: json
+  content: '{"aantal":10}'
+order: 4000

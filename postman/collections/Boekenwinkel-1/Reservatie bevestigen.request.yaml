@@ -1,0 +1,7 @@
+$kind: http-request
+url: "   http://localhost:8082/api/admin/reservaties/1/bevestigen"
+method: POST
+body:
+  type: json
+  content: '{"afhaalDatum":"2026-11-05"}'
+order: 6000

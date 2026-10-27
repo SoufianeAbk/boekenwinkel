@@ -1,0 +1,7 @@
+$kind: http-request
+url: http://localhost:8081/api/boeken/9780140449136
+method: PUT
+body:
+  type: json
+  content: '{"titel":"Nieuwe titel","auteurs":["Iemand"],"omschrijving":"Een testboek","prijs":14.00}'
+order: 3000

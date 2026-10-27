@@ -1,0 +1,11 @@
+$kind: collection
+name: Boekenwinkel
+variables:
+  token: ""
+  klanttoken: ""
+auth:
+  - id: 47b2df99-dff0-43b5-83fa-334a2faaa065
+    type: bearer
+    name: Bearer Token
+    credentials:
+      token: "{{klanttoken}}"

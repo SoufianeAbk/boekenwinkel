@@ -1,0 +1,6 @@
+$kind: http-request
+url: http://localhost:8082/api/admin/reservaties?status=GERESERVEERD
+method: GET
+queryParams:
+  status: GERESERVEERD
+order: 5000

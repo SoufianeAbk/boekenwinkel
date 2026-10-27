@@ -1,0 +1,7 @@
+$kind: http-request
+url: 'http://localhost:8082/api/reservaties'
+method: POST
+body:
+  type: json
+  content: '{"lijnen": [{"isbn": "9789463360029", "aantal": 1}]}'
+order: 8000
